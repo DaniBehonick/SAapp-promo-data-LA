@@ -32,18 +32,283 @@ SALApromoJan21 <- read.csv("LA promo data Jan2021.csv",
 ```
 
 ```{r}
-SALApromoJan21 <- SALApromoJan21 %>% select("country", "GA_impressions", "GA_link_clicks", "total_users")
+SALApromoJan21 <- SALApromoJan21 %>% select("country", 
+  "GA_impressions", "GA_link_clicks", "total_users")
 ```
 
 ```{r}
-SALApromoJan21 <- SALApromoJan21 %>% filter(country == "Argentina" | country == "Colombia" | country == "Guatemala" | country == "Honduras" | country == "Mexico")
+SALApromoJan21 <- SALApromoJan21 %>% filter(country == "Argentina" | 
+  country == "Colombia" | country == "Guatemala" | country == "Honduras" | 
+  country == "Mexico")
 ```
 
 ```{r}
-SALApromoJan21 <- SALApromoJan21 %>% mutate("GAI_index" = GA_impressions/total_users, "GALC_index" = GA_link_clicks/total_users)
+SALApromoJan21 <- SALApromoJan21 %>% mutate("GAI_index" = GA_impressions/total_users, 
+  "GALC_index" = GA_link_clicks/total_users)
 ```
 
 ```{r}
+install.packages("readxl")
+```
 
+```{r}
+library(readxl)
+```
+
+```{r}
+LAdata <- read_xlsx("SA App Ads Campaign 2020 (Eng, Span, Fren).xlsx", 
+  sheet = "Spanish")
+```
+```{r}
+colnames(LAdata) <- c("dates", "where", "ad", "reach", "link_clicks", 
+  "page_likes", "shares", "ages", "country", "amount", "total_spent", "video")
+```
+
+```{r}
+LAdata_small <- LAdata %>% select("dates", "reach", "link_clicks", 
+  "country", "total_spent")
+```
+
+```{r}
+LAdata_Jan21 <- LAdata_small %>% filter(dates == "1/5/2021-2/5/2021")
+```
+
+```{r}
+typeof(LAdata_Jan21$reach)
+typeof(LAdata_Jan21$link_clicks)
+typeof(LAdata_Jan21$total_spent)
+```
+```{r}
+LAdata_Jan21$reach <- as.numeric(LAdata_Jan21$reach)
+LAdata_Jan21$link_clicks <- as.numeric(LAdata_Jan21$link_clicks)
+LAdata_Jan21$total_spent <- as.numeric(LAdata_Jan21$total_spent)
+```
+
+```{r}
+typeof(LAdata_Jan21$reach)
+typeof(LAdata_Jan21$link_clicks)
+typeof(LAdata_Jan21$total_spent)
+```
+
+
+```{r}
+LAdata_Jan21_summ <- LAdata_Jan21 %>% group_by(country) %>% 
+  summarize (total_reach = sum(reach), total_link_clicks = sum(link_clicks), 
+  total_ad_spending = sum(total_spent))
+```
+
+```{r}
+install.packages("ggplot2")
+```
+
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(LAdata_Jan21_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending 
+  (5 Jan 2021 - 5 Feb 2021)") 
+```
+
+```{r}
+ggplot(LAdata_Jan21_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending 
+  (5 Jan 2021 - 5 Feb 2021)") 
+```
+
+```{r}
+LAdata_small_Jun20Jan21 <- LAdata_small %>% filter(dates == "1/5/2021-2/5/2021" | 
+  dates == "12/4/2020 to 01/05/2021" | dates == "11/02 to 12/02" | dates == "08/13 to 8/31" | 
+  dates == "09/09 to 09/31" | dates == "08/05 to 08/31" | dates == "07/01 to 07/31" |
+  dates == "06/10 to 06/30" | 
+  dates == "06/10 to 06/17  Was set to run until the 30th. but it got rejected on the 17th")
+```
+
+```{r}
+LApromo <- read_xlsx("SA App Ads Campaign 2020 (Eng, Span, Fren) db.xlsx", sheet = "Spanish")
+```
+```{r}
+colnames(LApromo) <- c("dates", "where", "ad", "reach", "link_clicks", 
+  "page_likes", "shares", "ages", "location", "amount", "total_spent", 
+  "video", "country")
+```
+
+```{r}
+LApromo_small <- LApromo %>% select("dates", "reach", "link_clicks", "amount", 
+  "total_spent", "country")
+
+LApromo_small_Jun20Jan21 <- LApromo_small %>% filter(dates == "1/5/2021-2/5/2021" | 
+  dates == "12/4/2020 to 01/05/2021" | dates == "11/02 to 12/02" | 
+  dates == "08/13 to 8/31" | dates == "09/09 to 09/31" | dates == "08/05 to 08/31" | 
+  dates == "07/01 to 07/31")
+```
+
+```{r}
+LApromo_small_Jun20Jan21$amount[LApromo_small_Jun20Jan21$amount == 
+  "$9 a day"]  <- "279"
+```
+
+```{r}
+LApromo_small_Jun20Jan21$amount[is.na(LApromo_small_Jun20Jan21$amount)] = 0
+LApromo_small_Jun20Jan21$total_spent[is.na(LApromo_small_Jun20Jan21$total_spent)] = 0
+```
+
+```{r}
+typeof(LApromo_small_Jun20Jan21$amount)
+typeof(LApromo_small_Jun20Jan21$total_spent)
+```
+```{r}
+LApromo_small_Jun20Jan21$amount <- as.numeric(LApromo_small_Jun20Jan21$amount)
+LApromo_small_Jun20Jan21$total_spent <- 
+  as.numeric(LApromo_small_Jun20Jan21$total_spent)
+```
+```{r}
+typeof(LApromo_small_Jun20Jan21$amount)
+typeof(LApromo_small_Jun20Jan21$total_spent)
+```
+
+
+```{r}
+LApromo_small_Jun20Jan21 <- LApromo_small_Jun20Jan21 %>% mutate(spending = 
+  amount + total_spent)
+```
+
+
+```{r}
+LApromo_small_Jun20Jan21 <- LApromo_small_Jun20Jan21 %>% select("dates", 
+  "reach", "link_clicks", "country", "spending")
+```
+
+```{r}
+LApromo_small_Jun20Jan21 <- rename(LApromo_small_Jun20Jan21, total_spent = spending)
+```
+
+```{r}
+typeof(LApromo_small_Jun20Jan21$reach)
+typeof(LApromo_small_Jun20Jan21$link_clicks)
+```
+
+```{r}
+LApromo_small_Jun20Jan21$reach <- as.numeric(LApromo_small_Jun20Jan21$reach)
+```
+
+```{r}
+typeof(LApromo_small_Jun20Jan21$reach)
+```
+```{r}
+LApromo_Jan21 <- LApromo_small_Jun20Jan21 %>% filter(dates == "1/5/2021-2/5/2021")
+
+LApromo_Dec20 <- LApromo_small_Jun20Jan21 %>% filter(dates == "12/4/2020 to 01/05/2021")
+
+LApromo_Nov20 <- LApromo_small_Jun20Jan21 %>% filter(dates == "11/02 to 12/02")
+
+LApromo_Aug20 <- LApromo_small_Jun20Jan21 %>% filter(dates == "08/13 to 8/31" | 
+  dates == "08/05 to 08/31")
+
+LApromo_Sept20 <- LApromo_small_Jun20Jan21 %>% filter(dates == "09/09 to 09/31")
+
+LApromo_Jul20 <- LApromo_small_Jun20Jan21 %>% filter(dates == "07/01 to 07/31")
+```
+
+```{r}
+LApromo_Jan21_summ <- LApromo_Jan21 %>% group_by(country) %>% summarise(total_reach = sum(reach),
+  total_link_clicks = sum(link_clicks), total_ad_spending = sum(total_spent))
+
+LApromo_Dec20_summ <- LApromo_Dec20 %>% group_by(country) %>% summarise(total_reach = sum(reach),
+  total_link_clicks = sum(link_clicks), total_ad_spending = sum(total_spent))
+
+LApromo_Nov20_summ <- LApromo_Nov20 %>% group_by(country) %>% summarise(total_reach = sum(reach),
+  total_link_clicks = sum(link_clicks), total_ad_spending = sum(total_spent))
+
+LApromo_Aug20_summ <- LApromo_Aug20 %>% group_by(country) %>% summarise(total_reach = sum(reach),
+  total_link_clicks = sum(link_clicks), total_ad_spending = sum(total_spent))
+
+LApromo_Sept20_summ <- LApromo_Sept20 %>% group_by(country) %>% summarise(total_reach =
+  sum(reach), total_link_clicks = sum(link_clicks), total_ad_spending = sum(total_spent))
+
+LApromo_Jul20_summ <- LApromo_Jul20 %>% group_by(country) %>% summarise(total_reach = sum(reach),
+  total_link_clicks = sum(link_clicks), total_ad_spending = sum(total_spent))
+```
+
+```{r}
+#jpeg('LApromo_Jul20_reach.jpg')
+ggplot(LApromo_Jul20_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending, Jul 2020") 
+
+#jpeg('LApromo_Jul20_clicks.jpg')
+ggplot(LApromo_Jul20_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending, Jul 2020") 
+
+#jpeg('LApromo_Aug20_reach.jpg')
+ggplot(LApromo_Aug20_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending, Aug 2020") 
+
+#jpeg('LApromo_Aug20_clicks.jpg')
+ggplot(LApromo_Aug20_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending, Aug 2020") 
+
+ggplot(LApromo_Sept20_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending, Sept 2020") 
+
+ggplot(LApromo_Sept20_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending, Sept 2020") 
+
+ggplot(LApromo_Nov20_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending, Nov 2020") 
+
+ggplot(LApromo_Nov20_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending, Nov 2020") 
+
+ggplot(LApromo_Dec20_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending, Dec 2020") 
+
+ggplot(LApromo_Dec20_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending, Dec 2020") 
+
+#jpeg('LApromo_Jan21_reach.jpg')
+ggplot(LApromo_Jan21_summ, aes(x = total_ad_spending, y = total_reach)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads reach (# people)", 
+  title = "Total Spanish SA app Facebook ads reach by ad spending, Jan 2021") 
+
+#jpeg('LApromo_Jan21_clicks.jpg')
+ggplot(LApromo_Jan21_summ, aes(x = total_ad_spending, y = total_link_clicks)) + 
+  geom_point(aes(color = country)) + 
+  labs(x = "Total spent (USD)", y = "Total Facebook ads link clicks (# clicks)", 
+  title = "Total Spanish SA app Facebook ads link clicks by ad spending, Jan 2021") 
+```
+
+```{r}
+LApromo_Jan21_summusers <-LApromo_Jan21_summ %>% inner_join(SALApromoJan21, by = "country")
+
+LApromo_Jan21_final <- LApromo_Jan21_summusers %>% mutate("FBR_index" = total_reach/total_users, 
+  "FBLC_index" = total_link_clicks/total_users)
+
+write.csv(LApromo_Jan21_final, "LApromo_Jan21_final.csv")
 ```
 
