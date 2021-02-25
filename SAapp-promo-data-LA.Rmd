@@ -1,0 +1,49 @@
+---
+title: "SA App promo data Latin America"
+author: "Dani Behonick"
+date: "2/22/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+total number of impressions in a month divided by total users in country in that month = index score
+
+is that approximately the same index every month?
+do some ads increase this?
+does some amount of ad spending increase this?
+is there no trend at all?
+
+Nov 2020-Jan2021, go monthly
+
+```{r}
+install.packages("readr")
+install.packages("dplyr")
+```
+```{r}
+library(readr)
+library(dplyr)
+```
+```{r}
+SALApromoJan21 <- read.csv("LA promo data Jan2021.csv",
+  head = T, sep = ",")
+```
+
+```{r}
+SALApromoJan21 <- SALApromoJan21 %>% select("country", "GA_impressions", "GA_link_clicks", "total_users")
+```
+
+```{r}
+SALApromoJan21 <- SALApromoJan21 %>% filter(country == "Argentina" | country == "Colombia" | country == "Guatemala" | country == "Honduras" | country == "Mexico")
+```
+
+```{r}
+SALApromoJan21 <- SALApromoJan21 %>% mutate("GAI_index" = GA_impressions/total_users, "GALC_index" = GA_link_clicks/total_users)
+```
+
+```{r}
+
+```
+
